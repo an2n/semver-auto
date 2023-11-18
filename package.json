@@ -1,12 +1,12 @@
 {
   "name": "semver-auto",
-  "version": "1.0.11",
+  "version": "1.1.0",
   "description": "Semver Auto automates precise version updates in package.json based on dependency changes",
   "bin": "dist/index.js",
   "scripts": {
     "tsc": "tsc",
     "build": "esbuild src/index.ts --outdir=dist --bundle  --minify  --platform=node",
-    "update-version": "node dist/index.js"
+    "update-version": "node dist/index.js "
   },
   "repository": {
     "type": "git",
@@ -25,8 +25,10 @@
   },
   "homepage": "https://github.com/an2n/semver-auto#readme",
   "devDependencies": {
+    "@types/commander": "^2.12.2",
     "@types/node": "20.9.1",
     "@types/semver": "7.5.5",
+    "commander": "^11.1.0",
     "esbuild": "0.19.5",
     "prettier": "3.1.0",
     "semver": "7.5.4",

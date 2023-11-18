@@ -38,16 +38,37 @@ Semver Auto is a Node.js project written in TypeScript and built and minified us
 
 <sup>\* A private project typically sets the "private" attribute in its package.json to true, [see reference](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#private).</sup>
 
-## Upcoming features
+## Options
 
-- Verbose Logging: Enhanced logging capabilities for detailed insights during script execution.
-- Version Checker: A functionality that checks if `package.json` current version can be updated, providing the option to exit the script if an update is available.
+### File Location
+
+By default, the script assumes the `package.json` file is located in the root folder. To specify a different location, utilize the -f or --file flag, indicating the path to your package.json. For instance:
+
+```
+
+npm run update-version --file <my-path/package.json>
+
+```
+
+This allows flexibility in specifying the exact location of your package.json file.
+
+### Verbose Logging
+
+Enhance your script's logging capabilities with detailed insights by enabling verbose mode using the -v or --verbose flag. For example:
+
+```
+
+npm run update-version --verbose
+
+```
+
+This enables comprehensive logging for a more in-depth understanding of script execution.
+
+## Upcoming Features
+
 - Open Source: The script will be released as open source, fostering collaboration and transparency.
 - Testing: Unit Testing integration for enhanced script reliability.
 
 ## Disclaimer
 
 This project is may not suitable If you plan to publish your package, [see reference](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#version). The most important things in your package.json are the name and version fields as they will be required.
-
-Semver
-Private auto version
