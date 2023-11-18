@@ -10,7 +10,7 @@ const program = new Command()
   .option("-v, --verbose [type]", "Add verbose logging", false)
   .parse(process.argv);
 
-const { file, verbose } = program.opts();
+const { file: packageJsonFile, verbose } = program.opts();
 
 const logger = (message: string) => {
   if (verbose) console.log(message);
@@ -19,25 +19,27 @@ const logger = (message: string) => {
 init();
 
 function init() {
-  if (file === true) {
+  if (packageJsonFile === true) {
     console.error("Path to package.json not found");
     return;
   }
 
   try {
-    processCommits(file);
+    processCommits(packageJsonFile);
   } catch (error: any) {
     console.error(`Error processing package.json changes: ${error.message}`);
   }
 }
 
-function processCommits(file: string): void {
-  if (!fs.existsSync(file)) {
-    console.error(`Error: Package.json file not found at ${file}`);
+function processCommits(packageJsonFile: string): void {
+  if (!fs.existsSync(packageJsonFile)) {
+    console.error(`Error: Package.json file not found at ${packageJsonFile}`);
     return;
   }
 
-  const commitHashes = execSync(`git rev-list --reverse HEAD -- ${file}`)
+  const commitHashes = execSync(
+    `git rev-list --reverse HEAD -- ${packageJsonFile}`
+  )
     .toString()
     .split("\n");
 
@@ -55,8 +57,9 @@ function processCommits(file: string): void {
 
     if (diff.includes("package.json")) {
       const packageJsonDiff = execSync(
-        `git show ${commitHash}:${file}`
+        `git show ${commitHash}:${packageJsonFile}`
       ).toString();
+
       const parsedDiff = JSON.parse(packageJsonDiff);
 
       const newDependencies = parsedDiff.dependencies || {};
@@ -84,21 +87,24 @@ function processCommits(file: string): void {
           updatePackageVersion(
             version,
             dependencyChange || devDependencyChange
-          ) || version;
+          ) ?? version;
         updated = true;
       }
     }
   }
 
   if (updated) {
-    const packageJsonContent = fs.readFileSync(file, "utf8");
+    const packageJsonContent = fs.readFileSync(packageJsonFile, "utf8");
     const packageJson = JSON.parse(packageJsonContent);
 
     if (packageJson.version === version) return;
 
     packageJson.version = version;
 
-    fs.writeFileSync(file, JSON.stringify(packageJson, null, 2) + "\n");
+    fs.writeFileSync(
+      packageJsonFile,
+      JSON.stringify(packageJson, null, 2) + "\n"
+    );
     console.log(`+ Updated package.json version to ${version}`);
   }
 }
@@ -148,9 +154,11 @@ function determineVersionChange(
     return "major";
   }
 
-  for (const dep in newDependencies) {
-    const current = cleanVersion(currentDependencies[dep]);
-    const compared = cleanVersion(newDependencies[dep]);
+  const foundChanges: string[] = [];
+
+  for (const dependency in newDependencies) {
+    const current = cleanVersion(currentDependencies[dependency]);
+    const compared = cleanVersion(newDependencies[dependency]);
 
     const currentVersionCleaned = semver.clean(current);
     const newVersionCleaned = semver.clean(compared);
@@ -168,10 +176,18 @@ function determineVersionChange(
       );
 
       if (semverChange) {
-        logger(`Updated dependency: ${dep}`);
-        return semverChange;
+        foundChanges.push(semverChange);
+        logger(`Found updated dependency: ${dependency}`);
       }
     }
+  }
+
+  if (foundChanges.length) {
+    const priorityOrder = ["major", "minor", "patch"];
+
+    return (
+      priorityOrder.find((version) => foundChanges.includes(version)) || null
+    );
   }
 
   return null;
