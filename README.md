@@ -22,7 +22,6 @@ Afterward, run the following command from your project folder:
 
 ```
 npm run update-version
-
 ```
 
 ## Summary
@@ -41,7 +40,7 @@ Semver Auto is a Node.js project written in TypeScript and built and minified us
 
 ### File Location
 
-By default, the script assumes the `package.json` file is located in the project root folder. To specify a different location, utilize the -f or --file flag, indicating the path to your package.json. For instance:
+By default, the script assumes the `package.json` file is located in the project root folder. To specify a different location, utilize the -f or --file flag, indicating the path to your package.json. For Example:
 
 ```
 npm run update-version --file <my-path/package.json>
