@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import * as fs from "fs";
 import * as semver from "semver";
 import { execSync } from "child_process";
