@@ -1,8 +1,8 @@
 {
   "name": "semver-auto",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Semver Auto automates precise version updates in package.json based on dependency changes",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "tsc": "tsc",
     "build": "esbuild src/index.ts --outdir=dist --bundle  --minify  --platform=node",
