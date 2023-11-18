@@ -1,0 +1,8 @@
+# .npmignore
+src
+.editorconfig
+.gitattributes
+.gitignore
+.prettierrc.cjs
+tsconfig.json
+.vscode
