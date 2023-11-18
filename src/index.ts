@@ -120,8 +120,7 @@ function updatePackageVersion(
         currentVersion = `${major}.${minor}.${patch + 1}`;
         break;
       default:
-        console.error(`Invalid version change type: ${versionChange}`);
-
+        console.error(`Found invalid version change type: ${versionChange}`);
         return;
     }
     return currentVersion;
