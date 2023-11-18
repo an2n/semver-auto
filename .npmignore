@@ -6,3 +6,4 @@ src
 .prettierrc.cjs
 tsconfig.json
 .vscode
+node_modules

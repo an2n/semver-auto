@@ -1,10 +1,11 @@
 {
   "name": "semver-auto",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Semver Auto automates precise version updates in package.json based on dependency changes",
   "main": "index.js",
   "scripts": {
     "tsc": "tsc",
+    "build": "esbuild src/index.ts --outdir=dist --bundle  --minify  --platform=node",
     "bump": "node dist/index.js"
   },
   "repository": {
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@types/node": "20.9.1",
     "@types/semver": "7.5.5",
+    "esbuild": "0.19.5",
     "prettier": "^3.1.0",
     "semver": "7.5.4",
     "typescript": "5.2.2"
