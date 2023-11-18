@@ -10,18 +10,24 @@ npm install semver-auto --save-dev
 
 ## Quickstart
 
-Add the following script to your `package.json`:
+Instantly available through npx:
 
 ```
-  "scripts": {
-    "update-version": "semver-auto"
-  }
+npx semver-auto
+```
+
+Or add the following script to your `package.json`:
+
+```
+"scripts": {
+  "semver-auto": "semver-auto"
+}
 ```
 
 Afterward, run the following command from your project folder:
 
 ```
-npm run update-version
+npm run semver-auto
 ```
 
 ## Summary
@@ -40,10 +46,10 @@ Semver Auto is a Node.js project written in TypeScript and built and minified us
 
 ### File Location
 
-By default, the script assumes the `package.json` file is located in the project root folder. To specify a different location, utilize the -f or --file flag, indicating the path to your package.json. For Example:
+By default, the script assumes the `package.json` file is located in the project root folder. To specify a different location, utilize the -f or --file flag, indicating the path to your package.json. For example by modifying:
 
 ```
-npm run update-version --file <my-path/package.json>
+npx semver-auto --file <my-path/package.json>
 ```
 
 This allows flexibility in specifying the exact location of your package.json file.
@@ -53,7 +59,7 @@ This allows flexibility in specifying the exact location of your package.json fi
 Enhance your script's logging capabilities with detailed insights by enabling verbose mode using the -v or --verbose flag. For example:
 
 ```
-npm run update-version --verbose
+npx semver-auto --verbose
 ```
 
 This enables comprehensive logging for a more in-depth understanding of script execution.
