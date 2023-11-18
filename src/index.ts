@@ -19,7 +19,7 @@ const logger = (message: string) => {
 init();
 
 function init() {
-  if (file) {
+  if (file === true) {
     console.error("Path to package.json not found");
     return;
   }
