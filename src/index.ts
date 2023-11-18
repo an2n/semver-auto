@@ -70,7 +70,7 @@ function processCommits(packageJsonPath: string): void {
         version =
           updatePackageVersion(
             version,
-            dependencyChange || devDependencyChange!
+            dependencyChange || devDependencyChange
           ) || version;
 
         updated = true; // Set to true if an update has been made
@@ -91,16 +91,21 @@ function processCommits(packageJsonPath: string): void {
     packageJson.version = version;
 
     // Write the updated package.json back to the file
-    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    fs.writeFileSync(
+      packageJsonPath,
+      JSON.stringify(packageJson, null, 2) + "\n"
+    );
     console.log(`+ Updated package.json version to ${version}`);
   }
 }
 
 function updatePackageVersion(
   currentVersion: string,
-  versionChange: string
+  versionChange: string | null
 ): string | undefined {
   try {
+    if (!versionChange) return;
+
     const [major, minor, patch] = currentVersion.split(".").map(Number);
 
     // Update the version based on the version change
@@ -115,7 +120,8 @@ function updatePackageVersion(
         currentVersion = `${major}.${minor}.${patch + 1}`;
         break;
       default:
-        console.error("Invalid version change type.");
+        console.error(`Invalid version change type: ${versionChange}`);
+
         return;
     }
     return currentVersion;
@@ -138,14 +144,27 @@ function determineVersionChange(
 
   // Compare the current and new dependencies
   for (const dep in newDependencies) {
-    const currentVersionCleaned = cleanVersion(currentDependencies[dep]);
-    const newVersionCleaned = cleanVersion(newDependencies[dep]);
+    const current = cleanVersion(currentDependencies[dep]);
+    const compared = cleanVersion(newDependencies[dep]);
 
-    // Check if the existing dependency has a semantic versioning change
-    const semverChange = semver.diff(currentVersionCleaned, newVersionCleaned);
-    if (semverChange) {
-      // There is a change in an existing dependency
-      return semverChange;
+    const currentVersionCleaned = semver.clean(current);
+    const newVersionCleaned = semver.clean(compared);
+
+    const isValid =
+      currentVersionCleaned &&
+      newVersionCleaned &&
+      semver.valid(currentVersionCleaned) &&
+      semver.valid(newVersionCleaned);
+
+    if (isValid) {
+      // Check if the existing dependency has a semantic versioning change
+      const semverChange = semver.diff(
+        currentVersionCleaned,
+        newVersionCleaned
+      );
+      if (semverChange) {
+        return semverChange;
+      }
     }
   }
 
