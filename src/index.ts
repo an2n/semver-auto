@@ -83,12 +83,16 @@ function processCommits(packageJsonPath: string): void {
     const packageJsonContent = fs.readFileSync(packageJsonPath, "utf8");
     const packageJson = JSON.parse(packageJsonContent);
 
+    if (packageJson.version === version) {
+      return;
+    }
+
     // Update the version
     packageJson.version = version;
 
     // Write the updated package.json back to the file
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-    console.log(`Updated package.json version to ${version}`);
+    console.log(`+ Updated package.json version to ${version}`);
   }
 }
 
