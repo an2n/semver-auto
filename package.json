@@ -1,0 +1,32 @@
+{
+  "name": "semver-auto",
+  "version": "1.0.0",
+  "description": "Semver Auto automates precise version updates in package.json based on dependency changes",
+  "main": "index.js",
+  "scripts": {
+    "update": "tsc && node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/an2n/semver-auto.git"
+  },
+  "keywords": [
+    "semantic",
+    "versioning",
+    "automation",
+    "Node.js"
+  ],
+  "author": "Anton Lilleby",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/an2n/semver-auto/issues"
+  },
+  "homepage": "https://github.com/an2n/semver-auto#readme",
+  "devDependencies": {
+    "@types/node": "20.9.1",
+    "@types/semver": "7.5.5",
+    "prettier": "^3.1.0",
+    "semver": "7.5.4",
+    "typescript": "5.2.2"
+  }
+}
