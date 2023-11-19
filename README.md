@@ -1,6 +1,6 @@
 # semver-auto
 
-Calculate the new package.json version based on dependency changes.
+Automate the package.json version by assessing changes in dependencies.
 
 ## Installation
 
