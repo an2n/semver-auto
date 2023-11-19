@@ -6,4 +6,5 @@ src
 .prettierrc.cjs
 tsconfig.json
 .vscode
+.github
 node_modules
