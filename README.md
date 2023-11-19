@@ -50,7 +50,7 @@ Change-Driven Versioning: The script intelligently determines the appropriate ve
 
 ### File Location
 
-By default, the script assumes the package.json file is located in the project root folder. To specify a different location, utilize the -f or --file flag, indicating the path to your package.json. For example by modifying:
+By default, the script assumes the package.json file is located in the current folder. To specify a different location, utilize the -f or --file flag, indicating the path to your package.json. For example by modifying:
 
 ```
 npx semver-auto --file <my-path/package.json>

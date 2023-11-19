@@ -6,7 +6,7 @@ import { execSync } from "child_process";
 import { Command } from "commander";
 
 const program = new Command()
-  .option("-f, --file [type]", "Add path to package.json", "package.json")
+  .option("-f, --file [type]", "Add path to package.json", "./package.json")
   .option("-v, --verbose [type]", "Add verbose logging", false)
   .option("-e, --exit [type]", "Add exit code when version is outdated", false)
   .parse(process.argv);
@@ -65,7 +65,14 @@ function processCommits(PACKAGE_JSON_PATH: string): void {
         `git show ${commitHash}:${PACKAGE_JSON_PATH}`
       ).toString();
 
-      const parsedDiff = JSON.parse(packageJsonDiff);
+      let parsedDiff = null;
+
+      try {
+        parsedDiff = JSON.parse(packageJsonDiff);
+      } catch (error) {
+        logger(`Error parsing package.json: ${error}`);
+        continue;
+      }
 
       const newDependencies = parsedDiff.dependencies || {};
       const newDevDependencies = parsedDiff.devDependencies || {};
@@ -194,9 +201,7 @@ function determineVersionChange(
 
   if (foundSemVerChanges.length) {
     const priorityOrder = ["major", "minor", "patch"];
-    logger(
-      "Selecting the highest semantic version identifier from the detected changes..."
-    );
+    logger("Selecting the highest semantic version from the detected change");
 
     return (
       priorityOrder.find((version) => foundSemVerChanges.includes(version)) ||
