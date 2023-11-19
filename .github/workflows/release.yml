@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        env:
-          GH_TOKEN: ${{ secrets.GHP_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -32,7 +30,7 @@ jobs:
       - name: Push Git tag
         run: git push origin ${{ steps.get_version.outputs.version }}
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub release
         id: create_release
