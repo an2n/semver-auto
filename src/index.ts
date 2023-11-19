@@ -147,9 +147,9 @@ function processCommits(PackageJsonPath: string): void {
           optionalDependencyChange && "optionalDependencies",
         ]
           .filter((value) => value)
-          .join(",");
+          .join(", ");
 
-        AddLog(`Selecting the highest semantic version from ${changeTypes}`);
+        AddLog(`Selecting the highest semver from ${changeTypes}`);
 
         const semverChange =
           VersionHierachy.find((version) =>
@@ -259,14 +259,14 @@ function determineVersionChange(
       );
 
       if (semverChange) {
-        AddLog(`Detected dependency change at: ${dependency}`);
+        AddLog(`Detected semver change at: ${dependency}`);
         semverChanges.push(semverChange);
       }
     }
   }
 
   if (semverChanges.length) {
-    AddLog("Selecting the highest semantic version from detected change");
+    AddLog("Selecting the highest semver from detected change");
 
     return (
       VersionHierachy.find((version) => semverChanges.includes(version)) || null
