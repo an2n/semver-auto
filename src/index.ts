@@ -15,7 +15,7 @@ const Program = new Command()
 
 const {
   exit: ExitProcess,
-  file: PackagePath,
+  file: PackageJsonPath,
   log: LoggingEnabled,
   progress: ProgreesBarEnabled,
 } = Program.opts();
@@ -53,25 +53,27 @@ function EmptyLog() {
 initialize();
 
 function initialize() {
-  if (PackagePath === true) {
+  if (PackageJsonPath === true) {
     console.error("Error: Unable to locate the path to package.json");
     return;
   }
 
   try {
-    processCommits(PackagePath);
+    processCommits(PackageJsonPath);
   } catch (error: any) {
     console.error(`Error processing package.json changes: ${error.message}`);
   }
 }
 
-function processCommits(PackagePath: string): void {
-  if (!fs.existsSync(PackagePath)) {
-    console.error(`Error: Package.json file not found at ${PackagePath}`);
+function processCommits(PackageJsonPath: string): void {
+  if (!fs.existsSync(PackageJsonPath)) {
+    console.error(`Error: Package.json file not found at ${PackageJsonPath}`);
     return;
   }
 
-  const commitHashes = execSync(`git rev-list --reverse HEAD -- ${PackagePath}`)
+  const commitHashes = execSync(
+    `git rev-list --reverse HEAD -- ${PackageJsonPath}`
+  )
     .toString()
     .split("\n");
 
@@ -95,7 +97,7 @@ function processCommits(PackagePath: string): void {
 
     if (diff.includes("package.json")) {
       const packageJsonDiff = execSync(
-        `git show ${commitHash}:${PackagePath}`
+        `git show ${commitHash}:${PackageJsonPath}`
       ).toString();
 
       let parsedDiff = null;
@@ -166,7 +168,7 @@ function processCommits(PackagePath: string): void {
   ProgreesBar?.stop();
 
   if (semverUpdated) {
-    const packageJsonContent = fs.readFileSync(PackagePath, "utf8");
+    const packageJsonContent = fs.readFileSync(PackageJsonPath, "utf8");
     const packageJson = JSON.parse(packageJsonContent);
 
     if (packageJson.version === version) return;
@@ -180,7 +182,10 @@ function processCommits(PackagePath: string): void {
     }
     packageJson.version = version;
 
-    fs.writeFileSync(PackagePath, JSON.stringify(packageJson, null, 2) + "\n");
+    fs.writeFileSync(
+      PackageJsonPath,
+      JSON.stringify(packageJson, null, 2) + "\n"
+    );
     console.log(`+ Updated package.json version to ${version}`);
   }
 }
