@@ -1,5 +1,5 @@
 <h1  align="center">semver-auto</h1>
-<p align="center">Automate the package.json version by assessing changes in dependencies</p>
+<p align="center">Automate the package.json versioning by assessing changes in dependencies</p>
 
 ![Semver auto in progress](./assets/in-progress.png)
 
