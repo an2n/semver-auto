@@ -17,6 +17,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 16
+          registry-url: https://registry.npmjs.org/
+          
       - run: npm ci
       - run: npm audit signatures
       - run: npm run build
@@ -39,10 +41,7 @@ jobs:
           automatic_release_tag: ${{ steps.get_version.outputs.version }}
           prerelease: false
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          registry-url: https://registry.npmjs.org/
-      - run: npm publish
+      - name: Publish to NPM
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
