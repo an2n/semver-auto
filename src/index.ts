@@ -8,37 +8,42 @@ import { Command } from "commander";
 const program = new Command()
   .option("-f, --file [type]", "Add path to package.json", "package.json")
   .option("-v, --verbose [type]", "Add verbose logging", false)
+  .option("-e, --exit [type]", "Add exit code when version is outdated", false)
   .parse(process.argv);
 
-const { file: packageJsonFile, verbose } = program.opts();
+const {
+  file: PACKAGE_JSON_PATH,
+  verbose: IS_VERBOSE,
+  exit: EXIT_PROCESS,
+} = program.opts();
 
 const logger = (message: string) => {
-  if (verbose) console.log(message);
+  if (IS_VERBOSE) console.log(message);
 };
 
-init();
+initialize();
 
-function init() {
-  if (packageJsonFile === true) {
-    console.error("Path to package.json not found");
+function initialize() {
+  if (PACKAGE_JSON_PATH === true) {
+    console.error("Error: Unable to locate the path to package.json");
     return;
   }
 
   try {
-    processCommits(packageJsonFile);
+    processCommits(PACKAGE_JSON_PATH);
   } catch (error: any) {
     console.error(`Error processing package.json changes: ${error.message}`);
   }
 }
 
-function processCommits(packageJsonFile: string): void {
-  if (!fs.existsSync(packageJsonFile)) {
-    console.error(`Error: Package.json file not found at ${packageJsonFile}`);
+function processCommits(PACKAGE_JSON_PATH: string): void {
+  if (!fs.existsSync(PACKAGE_JSON_PATH)) {
+    console.error(`Error: Package.json file not found at ${PACKAGE_JSON_PATH}`);
     return;
   }
 
   const commitHashes = execSync(
-    `git rev-list --reverse HEAD -- ${packageJsonFile}`
+    `git rev-list --reverse HEAD -- ${PACKAGE_JSON_PATH}`
   )
     .toString()
     .split("\n");
@@ -57,7 +62,7 @@ function processCommits(packageJsonFile: string): void {
 
     if (diff.includes("package.json")) {
       const packageJsonDiff = execSync(
-        `git show ${commitHash}:${packageJsonFile}`
+        `git show ${commitHash}:${PACKAGE_JSON_PATH}`
       ).toString();
 
       const parsedDiff = JSON.parse(packageJsonDiff);
@@ -94,15 +99,22 @@ function processCommits(packageJsonFile: string): void {
   }
 
   if (updated) {
-    const packageJsonContent = fs.readFileSync(packageJsonFile, "utf8");
+    const packageJsonContent = fs.readFileSync(PACKAGE_JSON_PATH, "utf8");
     const packageJson = JSON.parse(packageJsonContent);
 
     if (packageJson.version === version) return;
 
+    if (EXIT_PROCESS) {
+      console.error(
+        `Error: Your project is outdated. Please update your package.json to version ${version} by running 'semver-auto'`
+      );
+
+      process.exit(1);
+    }
     packageJson.version = version;
 
     fs.writeFileSync(
-      packageJsonFile,
+      PACKAGE_JSON_PATH,
       JSON.stringify(packageJson, null, 2) + "\n"
     );
     console.log(`+ Updated package.json version to ${version}`);
@@ -154,7 +166,7 @@ function determineVersionChange(
     return "major";
   }
 
-  const foundChanges: string[] = [];
+  const foundSemVerChanges: string[] = [];
 
   for (const dependency in newDependencies) {
     const current = cleanVersion(currentDependencies[dependency]);
@@ -176,17 +188,19 @@ function determineVersionChange(
       );
 
       if (semverChange) {
-        foundChanges.push(semverChange);
-        logger(`Found updated dependency: ${dependency}`);
+        foundSemVerChanges.push(semverChange);
       }
     }
   }
 
-  if (foundChanges.length) {
+  if (foundSemVerChanges.length) {
+    logger(`Found semver changes at: ${foundSemVerChanges}`);
+
     const priorityOrder = ["major", "minor", "patch"];
 
     return (
-      priorityOrder.find((version) => foundChanges.includes(version)) || null
+      priorityOrder.find((version) => foundSemVerChanges.includes(version)) ||
+      null
     );
   }
 
