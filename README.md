@@ -1,6 +1,7 @@
-# semver-auto
+<h1 style="text-align: center;">semver-auto</h1>
+<p style="text-align: center;">Automate the package.json version by assessing changes in dependencies</p>
 
-Automate the package.json version by assessing changes in dependencies.
+![Semver auto in progress](assets/in-progress.png)
 
 ## Installation
 
