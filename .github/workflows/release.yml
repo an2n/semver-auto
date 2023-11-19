@@ -19,6 +19,7 @@ jobs:
           node-version: 16
       - run: npm ci
       - run: npm audit signatures
+      - run: npm run build
 
       - name: Get the current version from package.json
         id: get_version
@@ -26,12 +27,12 @@ jobs:
 
       - name: Create Git tag
         run: git tag ${{ steps.get_version.outputs.version }}
-        
+
       - name: Push Git tag
         run: git push origin ${{ steps.get_version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
