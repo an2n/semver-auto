@@ -126,8 +126,6 @@ function updatePackageVersion(
   versionChange: string | null
 ): string | undefined {
   try {
-    if (!versionChange) return;
-
     const [major, minor, patch] = currentVersion.split(".").map(Number);
 
     switch (versionChange) {

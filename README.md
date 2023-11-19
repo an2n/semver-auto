@@ -1,6 +1,6 @@
 # semver-auto
 
-Calculate the new version number based on dependency changes.
+Calculate the new package.json version based on dependency changes.
 
 ## Installation
 
@@ -74,8 +74,9 @@ npx semver-auto --exit
 
 ## Upcoming Features
 
-- Testing: Unit Testing integration for enhanced script reliability.
-- Open Source: The script will be released as open source, fostering collaboration and transparency.
+- Add optionalDependencies to the dependency list.
+- Unit Testing integration for enhanced script reliability.
+- The script will be released as open source, fostering collaboration and transparency.
 
 ## Disclaimer
 
