@@ -74,9 +74,10 @@ npx semver-auto --exit
 
 ## Upcoming Features
 
-- Add optionalDependencies to the dependency list.
+- Include the -h and --help flags.
+- Incorporate optionalDependencies into the list of dependencies.
 - Unit Testing integration for enhanced script reliability.
-- The script will be released as open source, fostering collaboration and transparency.
+- Release as open source, fostering collaboration and transparency.
 
 ## Disclaimer
 
