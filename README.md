@@ -85,7 +85,6 @@ npx semver-auto --exit
 
 - Include the -h and --help flags.
 - Unit Testing integration for enhanced script reliability.
-- Release as open source, fostering collaboration and transparency.
 
 ## Disclaimer
 
@@ -93,7 +92,7 @@ This project may not be suitable If you plan to publish your package, [see refer
 
 ## Contributing
 
-Not available at the moment, but contributions will be welcome! If you encounter issues or have suggestions for improvement, please open an issue or submit a pull request.
+Contributions will be welcome! If you encounter issues or have suggestions for improvement, please open an issue or submit a pull request.
 
 ## License
 
