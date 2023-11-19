@@ -52,8 +52,6 @@ By default, the script assumes the package.json file is located in the project r
 npx semver-auto --file <my-path/package.json>
 ```
 
-This allows flexibility in specifying the exact location of your package.json file.
-
 ### Verbose Logging
 
 Enhance your script's logging capabilities with detailed insights by enabling verbose mode using the -v or --verbose flag. For example:
@@ -61,8 +59,6 @@ Enhance your script's logging capabilities with detailed insights by enabling ve
 ```
 npx semver-auto --verbose
 ```
-
-This enables comprehensive logging for a more in-depth understanding of script execution.
 
 ## Key Features
 
