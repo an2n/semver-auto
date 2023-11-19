@@ -32,22 +32,15 @@ npm run semver-auto
 
 ## Motivation
 
-This script addresses a common challenge in private projects\* related to package versioning, specifically the absence of semantic versioning (SemVer). It is designed as a targeted response to enhance the versioning process and overcome issues such as the default version that often arises during Continuous Integration/Continuous Deployment (CI/CD) workflows.
-
-<sup>\* A private project typically sets the "private" attribute in its package.json to true, [see reference](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#private).</sup>
+This script addresses a common challenge in private projects related to package versioning, specifically the absence of semantic versioning (SemVer). It is designed as a targeted response to enhance the versioning process and overcome issues such as the default version that often arises during Continuous Integration/Continuous Deployment (CI/CD) workflows.
 
 ## Overview
 
-This script is a solution for private Node.js projects addressing challenges related to versioning, dependency management, and project consistency. By automating version updates based on dependency changes, it not only simplifies the development process but also ensures that version numbers accurately reflect the evolution of the project.
+This script is a solution for private Node.js projects\* addressing challenges related to versioning, dependency management, and project consistency. By automating version updates based on dependency changes, it not only simplifies the development process but also ensures that version numbers accurately reflect the evolution of the project.
 
 Change-Driven Versioning: The script intelligently determines the appropriate version change (major, minor, or patch) based on the nature of the changes in the dependencies. This makes versioning more reflective of the impact of updates on the project.
 
-## Key Features
-
-- SemVer Integration: The script ensures the incorporation of semantic versioning into the package versioning system.
-- Prevents Default Versions: Eliminates the occurrence of the default 0.0.0 version during CI/CD, providing more accurate versioning.
-- Proactive Signal: Serves as a proactive signal for development teams, alerting them to updated packages.
-- Encourages Dependency Synchronization: By notifying developers of updated packages, it encourages them to synchronize their dependencies, fostering a more informed and synchronized development environment.
+<sup>\* A private Node.js project typically sets the "private" attribute in its package.json to true, [see reference](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#private).</sup>
 
 ## Options
 
@@ -70,6 +63,13 @@ npx semver-auto --verbose
 ```
 
 This enables comprehensive logging for a more in-depth understanding of script execution.
+
+## Key Features
+
+- SemVer Integration: The script ensures the incorporation of semantic versioning into the package versioning system.
+- Prevents Default Versions: Eliminates the occurrence of the default 0.0.0 version during CI/CD, providing more accurate versioning.
+- Proactive Signal: Serves as a proactive signal for development teams, alerting them to updated packages.
+- Encourages Dependency Synchronization: By notifying developers of updated packages, it encourages them to synchronize their dependencies, fostering a more informed and synchronized development environment.
 
 ## Upcoming Features
 
