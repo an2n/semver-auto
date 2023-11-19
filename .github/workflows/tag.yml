@@ -31,15 +31,3 @@ jobs:
         run: git push origin ${{ steps.get_version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create GitHub release
-        id: create_release
-        uses: ncipollo/release-action@v1
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: release-artifacts
-
-      - name: Set the release id as an output
-        run: echo ::set-output name=release_id::${{ steps.create_release.outputs.id }}
