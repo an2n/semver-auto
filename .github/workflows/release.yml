@@ -30,7 +30,7 @@ jobs:
       - name: Push Git tag
         run: git push origin ${{ steps.get_version.outputs.version }}
         env:
-          GHP_TOKEN: ${{ secrets.GHP_TOKEN }}
+          GH_TOKEN: ${{ secrets.GHP_TOKEN }}
 
       - name: Create GitHub release
         id: create_release
