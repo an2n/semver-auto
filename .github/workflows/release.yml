@@ -1,0 +1,47 @@
+name: Release Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 14
+      - run: npm ci
+      - run: npm audit signatures
+
+      - name: Get the current version from package.json
+        id: get_version
+        run: echo ::set-output name=version::$(node -p "require('./package.json').version")
+
+      - name: Create Git tag
+        run: git tag ${{ steps.get_version.outputs.version }}
+        
+      - name: Push Git tag
+        run: git push origin ${{ steps.get_version.outputs.version }}
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          release_name: Release ${{ steps.get_version.outputs.version }}
+          body: Release ${{ steps.get_version.outputs.version }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: release-artifacts
+
+      - name: Set the release id as an output
+        run: echo ::set-output name=release_id::${{ steps.create_release.outputs.id }}
