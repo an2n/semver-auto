@@ -40,11 +40,11 @@ This script is a solution for private Node.js projects\* addressing challenges r
 
 Change-Driven Versioning: The script intelligently determines the appropriate version change (major, minor, or patch) based on the nature of the changes in the dependencies. This makes versioning more reflective of the impact of updates on the project.
 
-- The MAJOR version is increased for any breaking change implementation.
-- The MINOR version is increased when introducing new features or functionalities.
-- The PATCH version is increased for bug fixes.
+- MAJOR version: Elevated for breaking changes in dependencies.
+- MINOR version: Raised when introducing new features or functionalities in dependencies.
+- PATCH version: Bumped for bug fixes in dependencies.
 
-<sup>\* A private Node.js project typically sets the "private" attribute in its package.json to true, [see reference](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#private).</sup>
+<sup>\* A private Node.js project can set the "private" attribute in its package.json to true, [see reference](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#private).</sup>
 
 ## Options
 
@@ -64,9 +64,9 @@ Enhance your script's logging capabilities with detailed insights by enabling ve
 npx semver-auto --verbose
 ```
 
-### Signaling Version Update
+### Signal Version Update
 
-Upon detecting a version update, the program will terminate and provide a non-zero exit code instead of writing to file. This serves as an indicator that the script requires execution before advancing to subsequent CI/CD steps, guaranteeing the inclusion of the latest changes. You can activate this functionality by enabling the -e or --exit flag. For example:
+Upon detecting a version update, the program will exit with a non-zero code, signaling the need for execution before proceeding with CI/CD steps. Activate this by using the -e or --exit flag. For example:
 
 ```
 npx semver-auto --exit

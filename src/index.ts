@@ -144,7 +144,7 @@ function updatePackageVersion(
         logger(`Increase patch version: ${currentVersion}\n`);
         break;
       default:
-        logger(`Found invalid version change type: ${versionChange}\n`);
+        logger(`Encountered an unprocessable version type: ${versionChange}\n`);
         return;
     }
     return currentVersion;
@@ -162,7 +162,7 @@ function determineVersionChange(
   );
 
   if (addedDependencies.length) {
-    logger(`New dependencies added: ${addedDependencies}`);
+    logger(`Added new dependencies: ${addedDependencies}`);
     return "major";
   }
 
@@ -189,14 +189,16 @@ function determineVersionChange(
 
       if (semverChange) {
         foundSemVerChanges.push(semverChange);
+        logger(`Detected dependency change at: ${dependency}`);
       }
     }
   }
 
   if (foundSemVerChanges.length) {
-    logger(`Found semver changes at: ${foundSemVerChanges}`);
-
     const priorityOrder = ["major", "minor", "patch"];
+    logger(
+      "Selecting the highest semantic version identifier from the detected changes..."
+    );
 
     return (
       priorityOrder.find((version) => foundSemVerChanges.includes(version)) ||
