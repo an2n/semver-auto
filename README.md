@@ -1,6 +1,6 @@
 # semver-auto
 
-Automates precise version updates in `package.json` based on dependency changes.
+Calculate the new version number based on dependency changes.
 
 ## Installation
 
@@ -32,7 +32,7 @@ npm run semver-auto
 
 ## Motivation
 
-This script addresses a common challenge in private projects related to package versioning, specifically the absence of semantic versioning (SemVer). It is designed as a targeted response to enhance the versioning process and overcome issues such as the default version that often arises during Continuous Integration/Continuous Deployment (CI/CD) workflows.
+This script addresses a common challenge in private projects related to package versioning, specifically the absence of Semantic Versioning (also called SemVer). It is designed as a targeted response to enhance the versioning process and overcome issues such as the default version that often arises during Continuous Integration/Continuous Deployment (CI/CD) workflows.
 
 ## Overview
 
@@ -60,9 +60,9 @@ Enhance your script's logging capabilities with detailed insights by enabling ve
 npx semver-auto --verbose
 ```
 
-## Key Features
+## Features
 
-- SemVer Integration: The script ensures the incorporation of semantic versioning into the package versioning system.
+- Semantic Version: The script ensures the incorporation of semantic versioning into the package versioning system.
 - Prevents Default Versions: Eliminates the occurrence of the default 0.0.0 version during CI/CD, providing more accurate versioning.
 - Proactive Signal: Serves as a proactive signal for development teams, alerting them to updated packages.
 - Encourages Dependency Synchronization: By notifying developers of updated packages, it encourages them to synchronize their dependencies, fostering a more informed and synchronized development environment.
