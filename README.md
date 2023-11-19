@@ -36,9 +36,9 @@ This script addresses a common challenge in private projects related to package 
 
 ## Overview
 
-This script is a solution for private Node.js projects\* addressing challenges related to versioning, dependency management, and project consistency. By automating version updates based on dependency changes, it not only simplifies the development process but also ensures that version numbers accurately reflect the evolution of the project.
+This script is a solution for private Node.js projects\* addressing challenges related to versioning, dependency management, and project consistency. By automating version updates based on dependency changes, it not only simplifies the development process but also ensures that version numbers accurately reflect the changes of the project.
 
-Change-Driven Versioning: The script intelligently determines the appropriate version change (major, minor, or patch) based on the nature of the changes in the dependencies. This makes versioning more reflective of the impact of updates on the project.
+Change-Driven Versioning: The script intelligently determines the appropriate version change (major, minor, or patch) based on the nature of the changes in the dependencies. This makes versioning more reflective of the impact of updates on the project. It currently examines dependencies, devDependencies, and optionalDependencies within the package.json.
 
 - MAJOR version: Elevated for breaking changes in dependencies.
 - MINOR version: Raised when introducing new features or functionalities in dependencies.
@@ -56,15 +56,23 @@ By default, the script assumes the package.json file is located in the current f
 npx semver-auto --file <my-path/package.json>
 ```
 
-### Verbose Logging
+### Logging
 
-Enhance your script's logging capabilities with detailed insights by enabling verbose mode using the -v or --verbose flag. For example:
+Enhance the script's logging capabilities with detailed insights by enabling verbose mode using the -l or --log flag. For example:
 
 ```
-npx semver-auto --verbose
+npx semver-auto --log
 ```
 
-### Signal Version Update
+### Progress Bar
+
+Enable a progress bar with the -p or --progress flag. For example:
+
+```
+npx semver-auto --progress
+```
+
+### Exiting
 
 Upon detecting a version update, the program will exit with a non-zero code, signaling the need for execution before proceeding with CI/CD steps. Activate this by using the -e or --exit flag. For example:
 
@@ -75,7 +83,6 @@ npx semver-auto --exit
 ## Upcoming Features
 
 - Include the -h and --help flags.
-- Incorporate optionalDependencies into the list of dependencies.
 - Unit Testing integration for enhanced script reliability.
 - Release as open source, fostering collaboration and transparency.
 

@@ -4,57 +4,90 @@ import * as fs from "fs";
 import * as semver from "semver";
 import { execSync } from "child_process";
 import { Command } from "commander";
+import { ProgressBar } from "@opentf/cli-pbar";
 
-const program = new Command()
+const Program = new Command()
+  .option("-e, --exit", "Add exit code when version is outdated", false)
   .option("-f, --file [type]", "Add path to package.json", "./package.json")
-  .option("-v, --verbose [type]", "Add verbose logging", false)
-  .option("-e, --exit [type]", "Add exit code when version is outdated", false)
+  .option("-l, --log", "Add verbose logging", false)
+  .option("-p --progress", "Add progress bar", false)
   .parse(process.argv);
 
 const {
-  file: PACKAGE_JSON_PATH,
-  verbose: IS_VERBOSE,
-  exit: EXIT_PROCESS,
-} = program.opts();
+  exit: ExitProcess,
+  file: PackagePath,
+  log: LoggingEnabled,
+  progress: ProgreesBarEnabled,
+} = Program.opts();
 
-const logger = (message: string) => {
-  if (IS_VERBOSE) console.log(message);
+const ProgreesBar = ProgreesBarEnabled
+  ? new ProgressBar({
+      size: "SMALL",
+      color: "rgb(3, 223, 127)",
+    })
+  : null;
+
+const VersionHierachy = ["major", "minor", "patch"];
+
+let Logs: string[] = [];
+
+const AddLog = (message: string) => {
+  if (LoggingEnabled) {
+    Logs.push(message);
+  }
 };
+
+const GetLog = () => {
+  if (LoggingEnabled) {
+    return Logs.length ? `\n${Logs.join("\n")}` : undefined;
+  }
+  return undefined;
+};
+
+function EmptyLog() {
+  if (LoggingEnabled) {
+    Logs = [];
+  }
+}
 
 initialize();
 
 function initialize() {
-  if (PACKAGE_JSON_PATH === true) {
+  if (PackagePath === true) {
     console.error("Error: Unable to locate the path to package.json");
     return;
   }
 
   try {
-    processCommits(PACKAGE_JSON_PATH);
+    processCommits(PackagePath);
   } catch (error: any) {
     console.error(`Error processing package.json changes: ${error.message}`);
   }
 }
 
-function processCommits(PACKAGE_JSON_PATH: string): void {
-  if (!fs.existsSync(PACKAGE_JSON_PATH)) {
-    console.error(`Error: Package.json file not found at ${PACKAGE_JSON_PATH}`);
+function processCommits(PackagePath: string): void {
+  if (!fs.existsSync(PackagePath)) {
+    console.error(`Error: Package.json file not found at ${PackagePath}`);
     return;
   }
 
-  const commitHashes = execSync(
-    `git rev-list --reverse HEAD -- ${PACKAGE_JSON_PATH}`
-  )
+  const commitHashes = execSync(`git rev-list --reverse HEAD -- ${PackagePath}`)
     .toString()
     .split("\n");
 
-  logger(`Total commits to analyze: ${commitHashes.length}\n`);
+  if (LoggingEnabled) {
+    console.log(`Total commits to analyze: ${commitHashes.length}`);
+  }
 
-  let updated = false;
+  ProgreesBar?.start({ total: commitHashes.length });
+
   let version = "1.0.0";
+  let semverUpdated = false;
   let dependencies: Record<string, string> = {};
   let devDependencies: Record<string, string> = {};
+  let optionalDependencies: Record<string, string> = {};
 
+  let iterator = 1;
   for (const commitHash of commitHashes) {
     const diff = execSync(
       `git show --format= --name-only ${commitHash}`
@@ -62,7 +95,7 @@ function processCommits(PACKAGE_JSON_PATH: string): void {
 
     if (diff.includes("package.json")) {
       const packageJsonDiff = execSync(
-        `git show ${commitHash}:${PACKAGE_JSON_PATH}`
+        `git show ${commitHash}:${PackagePath}`
       ).toString();
 
       let parsedDiff = null;
@@ -70,12 +103,13 @@ function processCommits(PACKAGE_JSON_PATH: string): void {
       try {
         parsedDiff = JSON.parse(packageJsonDiff);
       } catch (error) {
-        logger(`Error parsing package.json: ${error}`);
+        AddLog(`Error parsing package.json: ${error}`);
         continue;
       }
 
       const newDependencies = parsedDiff.dependencies || {};
       const newDevDependencies = parsedDiff.devDependencies || {};
+      const newOptionalDependencies = parsedDiff.optionalDependencies || {};
 
       const dependencyChange = determineVersionChange(
         dependencies,
@@ -89,29 +123,55 @@ function processCommits(PACKAGE_JSON_PATH: string): void {
         devDependencies,
         newDevDependencies
       );
-
       if (devDependencyChange) {
         devDependencies = newDevDependencies;
       }
 
-      if (dependencyChange || devDependencyChange) {
-        version =
-          updatePackageVersion(
-            version,
-            dependencyChange || devDependencyChange
-          ) ?? version;
-        updated = true;
+      const optionalDependencyChange = determineVersionChange(
+        optionalDependencies,
+        newOptionalDependencies
+      );
+      if (optionalDependencyChange) {
+        optionalDependencies = newOptionalDependencies;
+      }
+
+      const semverChanges =
+        dependencyChange || devDependencyChange || optionalDependencyChange;
+
+      if (semverChanges) {
+        const changeTypes = [
+          dependencyChange && "dependencies",
+          devDependencyChange && "devDependencies",
+          optionalDependencyChange && "optionalDependencies",
+        ]
+          .filter((value) => value)
+          .join(",");
+
+        AddLog(`Selecting the highest semantic version from ${changeTypes}`);
+
+        const semverChange =
+          VersionHierachy.find((version) =>
+            [semverChanges].includes(version)
+          ) || null;
+
+        version = updatePackageVersion(version, semverChange) ?? version;
+        semverUpdated = true;
       }
     }
+
+    ProgreesBar?.update({ value: iterator++, suffix: GetLog() });
+    EmptyLog();
   }
 
-  if (updated) {
-    const packageJsonContent = fs.readFileSync(PACKAGE_JSON_PATH, "utf8");
+  ProgreesBar?.stop();
+
+  if (semverUpdated) {
+    const packageJsonContent = fs.readFileSync(PackagePath, "utf8");
     const packageJson = JSON.parse(packageJsonContent);
 
     if (packageJson.version === version) return;
 
-    if (EXIT_PROCESS) {
+    if (ExitProcess) {
       console.error(
         `Error: Your project is outdated. Please update your package.json to version ${version} by running 'semver-auto'`
       );
@@ -120,10 +180,7 @@ function processCommits(PACKAGE_JSON_PATH: string): void {
     }
     packageJson.version = version;
 
-    fs.writeFileSync(
-      PACKAGE_JSON_PATH,
-      JSON.stringify(packageJson, null, 2) + "\n"
-    );
+    fs.writeFileSync(PackagePath, JSON.stringify(packageJson, null, 2) + "\n");
     console.log(`+ Updated package.json version to ${version}`);
   }
 }
@@ -138,18 +195,18 @@ function updatePackageVersion(
     switch (versionChange) {
       case "major":
         currentVersion = `${major + 1}.0.0`;
-        logger(`Increase major version: ${currentVersion}\n`);
+        AddLog(`Increase major version: ${currentVersion}\n`);
         break;
       case "minor":
         currentVersion = `${major}.${minor + 1}.0`;
-        logger(`Increase minor version: ${currentVersion}\n`);
+        AddLog(`Increase minor version: ${currentVersion}\n`);
         break;
       case "patch":
         currentVersion = `${major}.${minor}.${patch + 1}`;
-        logger(`Increase patch version: ${currentVersion}\n`);
+        AddLog(`Increase patch version: ${currentVersion}\n`);
         break;
       default:
-        logger(`Encountered an unprocessable version type: ${versionChange}\n`);
+        AddLog(`Encountered an unprocessable version type: ${versionChange}\n`);
         return;
     }
     return currentVersion;
@@ -167,11 +224,15 @@ function determineVersionChange(
   );
 
   if (addedDependencies.length) {
-    logger(`Added new dependencies: ${addedDependencies}`);
+    if (addedDependencies.length === 1) {
+      AddLog(`Added new dependency: ${addedDependencies}`);
+    } else {
+      AddLog(`Added new dependencies: ${addedDependencies}`);
+    }
     return "major";
   }
 
-  const foundSemVerChanges: string[] = [];
+  const semverChanges: string[] = [];
 
   for (const dependency in newDependencies) {
     const current = cleanVersion(currentDependencies[dependency]);
@@ -193,19 +254,17 @@ function determineVersionChange(
       );
 
       if (semverChange) {
-        foundSemVerChanges.push(semverChange);
-        logger(`Detected dependency change at: ${dependency}`);
+        AddLog(`Detected dependency change at: ${dependency}`);
+        semverChanges.push(semverChange);
       }
     }
   }
 
-  if (foundSemVerChanges.length) {
-    const priorityOrder = ["major", "minor", "patch"];
-    logger("Selecting the highest semantic version from the detected change");
+  if (semverChanges.length) {
+    AddLog("Selecting the highest semantic version from detected change");
 
     return (
-      priorityOrder.find((version) => foundSemVerChanges.includes(version)) ||
-      null
+      VersionHierachy.find((version) => semverChanges.includes(version)) || null
     );
   }
 
