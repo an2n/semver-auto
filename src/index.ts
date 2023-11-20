@@ -146,7 +146,7 @@ function processCommits(PackageJsonPath: string): void {
           devDependencyChange && "devDependencies",
           optionalDependencyChange && "optionalDependencies",
         ]
-          .filter((value) => value)
+          .filter(Boolean)
           .join(", ");
 
         AddLog(`Selecting the highest semver from ${changeTypes}`);
@@ -216,7 +216,7 @@ function updatePackageVersion(
     }
     return currentVersion;
   } catch (error: any) {
-    console.error(`Error updating package.json version: ${error.message}`);
+    console.error(`Error updating package.json version: ${error?.message}`);
   }
 }
 
@@ -229,11 +229,12 @@ function determineVersionChange(
   );
 
   if (addedDependencies.length) {
-    if (addedDependencies.length === 1) {
-      AddLog(`Added new dependency: ${addedDependencies}`);
-    } else {
-      AddLog(`Added new dependencies: ${addedDependencies}`);
-    }
+    const message =
+      addedDependencies.length === 1
+        ? `Added new dependency: ${addedDependencies}`
+        : `Added new dependencies: ${addedDependencies}`;
+
+    AddLog(message);
     return "major";
   }
 

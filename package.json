@@ -1,6 +1,6 @@
 {
   "name": "semver-auto",
-  "version": "1.4.7",
+  "version": "1.4.8",
   "description": "Automate the package.json versioning by assessing changes in dependencies",
   "bin": "dist/index.js",
   "scripts": {

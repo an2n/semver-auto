@@ -1,7 +1,7 @@
 <h1  align="center">semver-auto</h1>
 <p align="center">Automate the package.json versioning by assessing changes in dependencies</p>
 
-![Semver auto in progress](./assets/in-progress.png)
+![Semver auto in progress](https://github-production-user-asset-6210df.s3.amazonaws.com/9165542/284140147-da34dd35-c4dd-467f-94b3-a3dd69067ee7.png)
 
 ## Installation
 
@@ -33,17 +33,15 @@ npm run semver-auto
 
 ## Motivation
 
-This script addresses a common challenge in private projects related to package versioning, specifically the absence of Semantic Versioning (also called SemVer). It is designed as a targeted response to enhance the versioning process and overcome issues such as the default version that often arises during development.
-
 ## Overview
 
-This script is a solution for private Node.js projects\* addressing challenges related to versioning, dependency management, and project consistency. By automating version updates based on dependency changes, it not only simplifies the development process but also ensures that version numbers accurately reflect the changes of the project.
+This script addresses a common challenge in private\* projects related to package versioning, specifically the absence of Semantic Versioning (also called SemVer). It is designed as a targeted response to enhance the versioning process and overcome issues such as the default version that often arises during development. By automating version updates based on dependency changes, it not only simplifies the development process but also ensures that version numbers accurately reflect the changes of the project.
 
 Change-Driven Versioning: The script intelligently determines the appropriate version change (major, minor, or patch) based on the nature of the changes in the dependencies. This makes versioning more reflective of the impact of updates on the project. It currently examines dependencies, devDependencies, and optionalDependencies within the package.json.
 
-- MAJOR version: Elevated for breaking changes in dependencies.
-- MINOR version: Raised when introducing new features or functionalities in dependencies.
-- PATCH version: Bumped for bug fixes in dependencies.
+- MAJOR version: Breaking changes found in dependencies.
+- MINOR version: New features or functionalities found in dependencies.
+- PATCH version: Bug fixes found in dependencies.
 
 <sup>\* A private Node.js project can set the "private" attribute in its package.json to true, [see reference](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#private).</sup>
 
@@ -59,7 +57,7 @@ npx semver-auto --file <my-path/package.json>
 
 ### Logging
 
-Enhance the script's logging capabilities with detailed insights by enabling verbose mode using the -l or --log flag. For example:
+Enhance logging capabilities with detailed insights by enabling verbose mode using the -l or --log flag. For example:
 
 ```
 npx semver-auto --log
@@ -75,7 +73,7 @@ npx semver-auto --progress
 
 ### Exiting
 
-Upon detecting a version update, the program will exit with a non-zero code, signaling the need for execution before proceeding with CI/CD steps. Activate this by using the -e or --exit flag. For example:
+The script can exit with a non-zero code, signaling the need for execution before proceeding with CI/CD steps. Enable by using the -e or --exit flag. For example:
 
 ```
 npx semver-auto --exit
@@ -92,7 +90,7 @@ This project may not be suitable If you plan to publish your package, [see refer
 
 ## Contributing
 
-Contributions will be welcome! If you encounter issues or have suggestions for improvement, please open an issue or submit a pull request.
+Contributions are welcome! If you encounter issues or have suggestions for improvement, please open an issue or submit a pull request.
 
 ## License
 
