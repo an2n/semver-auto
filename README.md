@@ -9,7 +9,7 @@
 npm install semver-auto --save-dev
 ```
 
-## Quickstart
+## Usage
 
 Instantly available through npx:
 
@@ -17,31 +17,18 @@ Instantly available through npx:
 npx semver-auto
 ```
 
-Or add the following script to your `package.json`:
-
-```
-"scripts": {
-  "semver-auto": "semver-auto"
-}
-```
-
-Afterward, run the following command from your project folder:
-
-```
-npm run semver-auto
-```
-
-## Motivation
-
 ## Overview
 
-This script addresses a common challenge in private\* projects related to package versioning, specifically the absence of Semantic Versioning (also called SemVer). It is designed as a targeted response to enhance the versioning process and overcome issues such as the default version that often arises during development. By automating version updates based on dependency changes, it not only simplifies the development process but also ensures that version numbers accurately reflect the changes of the project.
+This script addresses a common challenge in private\* projects related to package versioning, specifically the absence of Semantic Versioning (also called SemVer). It is designed as a targeted response to enhancing the versioning process and overcome issues such as the default version that often arises during development. By automating version updates based on dependency changes, it not only simplifies the development process but also ensures that version numbers accurately represent the changes in project packages.
 
 Change-Driven Versioning: The script intelligently determines the appropriate version change (major, minor, or patch) based on the nature of the changes in the dependencies. This makes versioning more reflective of the impact of updates on the project. It currently examines dependencies, devDependencies, and optionalDependencies within the package.json.
 
-- MAJOR version: Breaking changes found in dependencies.
-- MINOR version: New features or functionalities found in dependencies.
-- PATCH version: Bug fixes found in dependencies.
+| Code status                                         | Stage         | Rule                                                               | Example version |
+| --------------------------------------------------- | ------------- | ------------------------------------------------------------------ | --------------- |
+| First release of package.json                       | New product   | Start with 1.0.0                                                   | 1.0.0           |
+| Dependency that are backward compatible bug fix     | Patch release | Increment the third digit                                          | 1.0.1           |
+| Dependency that are backward compatible new feature | Minor release | Increment the middle digit and reset last digit to zero            | 1.1.0           |
+| Dependency change that break backward compatibility | Major release | Increment the first digit and reset middle and last digits to zero | 2.0.0           |
 
 <sup>\* A private Node.js project can set the "private" attribute in its package.json to true, [see reference](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#private).</sup>
 
