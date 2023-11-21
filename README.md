@@ -3,18 +3,12 @@
 
 ![Semver auto in progress](https://github-production-user-asset-6210df.s3.amazonaws.com/9165542/284140147-da34dd35-c4dd-467f-94b3-a3dd69067ee7.png)
 
-## Installation
+## Installation And Usage
 
 ```
 npm install semver-auto --save-dev
-```
-
-## Usage
-
-Instantly available through npx:
-
-```
 npx semver-auto
+
 ```
 
 ## Overview
@@ -36,18 +30,23 @@ Change-Driven Versioning: The script intelligently determines the appropriate ve
 
 ### File Location
 
-By default, the script assumes the package.json file is located in the current folder. To specify a different location, utilize the -f or --file flag, indicating the path to your package.json. For example by modifying:
+By default, the script assumes the package.json file is located in the folder you are in. To specify a different location, utilize the -f or --file flag, indicating the path to your package.json. For example:
 
 ```
+
 npx semver-auto --file <my-path/package.json>
+
 ```
 
 ### Logging
 
 Enhance logging capabilities with detailed insights by enabling verbose mode using the -l or --log flag. For example:
+f
 
 ```
+
 npx semver-auto --log
+
 ```
 
 ### Progress Bar
@@ -55,7 +54,19 @@ npx semver-auto --log
 Enable a progress bar with the -p or --progress flag. For example:
 
 ```
+
 npx semver-auto --progress
+
+```
+
+### HEAD Start
+
+In Git, "HEAD" refers to the most recent commit on the currently checked-out branch. If you've previously run semver-auto, reanalyzing all commits to determine the appropriate version may be redundant. In these cases, you can start the analysis from the latest commit on your branch to make execution faster. However, exercise caution when doing so. Enable this feature by including the -h or --head flag. For example:
+
+```
+
+npx semver-auto --head
+
 ```
 
 ### Exiting
@@ -63,13 +74,17 @@ npx semver-auto --progress
 The script can exit with a non-zero code, signaling the need for execution before proceeding with CI/CD steps. Enable by using the -e or --exit flag. For example:
 
 ```
+
 npx semver-auto --exit
+
 ```
 
 ## Upcoming Features
 
 - Include the -h and --help flags.
-- Unit Testing integration for enhanced script reliability.
+- Update project architecture.
+- Unit Testing integration for script reliability.
+- Incorporate flag-based logic into a dedicated file to optimize performance during regular execution.
 
 ## Disclaimer
 
@@ -82,3 +97,7 @@ Contributions are welcome! If you encounter issues or have suggestions for impro
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+```
+
+```

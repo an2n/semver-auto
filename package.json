@@ -1,12 +1,13 @@
 {
   "name": "semver-auto",
-  "version": "1.4.10",
+  "version": "1.5.0",
   "description": "Automate the package.json versioning by assessing changes in dependencies",
-  "bin": "dist/index.js",
+  "main": "./dist/index.ts",
+  "bin": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "tsc": "tsc",
-    "build": "esbuild src/index.ts --outdir=dist --bundle  --minify  --platform=node",
-    "semver-auto": "node dist/index.js "
+    "build": "tsup",
+    "semver-auto": "node dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -26,12 +27,13 @@
   "homepage": "https://github.com/an2n/semver-auto#readme",
   "devDependencies": {
     "@opentf/cli-pbar": "0.1.8",
+    "@tsconfig/node-lts": "18.12.5",
     "@types/node": "20.9.1",
     "@types/semver": "7.5.5",
     "commander": "11.1.0",
-    "esbuild": "0.19.5",
     "prettier": "3.1.0",
     "semver": "7.5.4",
+    "tsup": "8.0.1",
     "typescript": "5.2.2"
   }
 }

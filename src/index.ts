@@ -6,91 +6,102 @@ import { execSync } from "child_process";
 import { Command } from "commander";
 import { ProgressBar } from "@opentf/cli-pbar";
 
-const Program = new Command()
-  .option("-e, --exit", "Add exit code when version is outdated", false)
-  .option("-f, --file [type]", "Add path to package.json", "./package.json")
-  .option("-l, --log", "Add verbose logging", false)
-  .option("-p --progress", "Add progress bar", false)
-  .parse(process.argv);
-
 const {
-  exit: ExitProcess,
-  file: PackageJsonPath,
-  log: LoggingEnabled,
-  progress: ProgreesBarEnabled,
-} = Program.opts();
+  exit: exitProcess,
+  file: packageJsonPath,
+  log: loggingEnabled,
+  progress: progreesBarEnabled,
+  head: startFromHead,
+} = new Command()
+  .option("-e, --exit", "Exit when version is outdated", false)
+  .option("-f, --file [type]", "Add path to package.json", "./package.json")
+  .option("-l --log", "Enable verbose logging", false)
+  .option("-p --progress", "Enable progress bar", false)
+  .option("-h --head", "Start from the branch latest commit.", false)
+  .parse(process.argv)
+  .opts();
 
-const ProgreesBar = ProgreesBarEnabled
+const progreesBar = progreesBarEnabled
   ? new ProgressBar({
       size: "SMALL",
       color: "rgb(3, 223, 127)",
     })
   : null;
 
-const VersionHierachy = ["major", "minor", "patch"];
+let messages: string[] = [];
+const semverHierachy = ["major", "minor", "patch"] as const;
+type SemverTypes = (typeof semverHierachy)[number];
 
-let Logs: string[] = [];
+const cleanSemver = (version: string) => version.replace(/^[^0-9]+/, "");
 
-const AddLog = (message: string) => {
-  if (LoggingEnabled) {
-    Logs.push(message);
-  }
-};
-
-const GetLogOutput = () => {
-  return Logs.length ? Logs.join("\n") : undefined;
-};
-
-const GetProgressBarOutput = () => {
-  return Logs.length ? `\n${Logs.join("\n")}` : undefined;
-};
-
-function EmptyLog() {
-  if (LoggingEnabled) {
-    Logs = [];
+function addMessages(message: string) {
+  if (loggingEnabled) {
+    messages.push(message);
   }
 }
+
+function emptyMessages() {
+  if (loggingEnabled) {
+    messages = [];
+  }
+}
+
+const getLogMessages = () => {
+  return messages.length ? messages.join("\n") : undefined;
+};
+
+const getProgressMessages = () => {
+  return messages.length ? `\n${messages.join("\n")}` : undefined;
+};
 
 initialize();
 
 function initialize() {
-  if (PackageJsonPath === true) {
+  if (packageJsonPath === true) {
     console.error("Error: Unable to locate the path to package.json");
     return;
   }
 
+  if (!fs.existsSync(packageJsonPath)) {
+    console.error(`Error: Package.json file not found at ${packageJsonPath}`);
+    return;
+  }
+
   try {
-    processCommits(PackageJsonPath);
+    processCommits();
   } catch (error: any) {
     console.error(`Error processing package.json changes: ${error.message}`);
   }
 }
 
-function processCommits(PackageJsonPath: string): void {
-  if (!fs.existsSync(PackageJsonPath)) {
-    console.error(`Error: Package.json file not found at ${PackageJsonPath}`);
+function processCommits() {
+  let version = packageJsonVersion();
+
+  if (!version) {
+    console.error("Error: Could not determined package.json version");
     return;
   }
 
-  const commitHashes = execSync(
-    `git rev-list --reverse HEAD -- ${PackageJsonPath}`
-  )
-    .toString()
-    .split("\n");
-
-  if (LoggingEnabled) {
-    console.log(`Total commits to analyze: ${commitHashes.length}`);
-  }
-
-  ProgreesBar?.start({ total: commitHashes.length });
-
-  let version = "1.0.0";
+  let commitIterator = 1;
   let semverUpdated = false;
   let dependencies: Record<string, string> = {};
   let devDependencies: Record<string, string> = {};
   let optionalDependencies: Record<string, string> = {};
 
-  let iterator = 1;
+  const commitHashes = execSync(
+    startFromHead
+      ? `git log -n 1 --format="%H" -- ${packageJsonPath}`
+      : `git rev-list --reverse HEAD -- ${packageJsonPath}`
+  )
+    .toString()
+    .split("\n")
+    .filter(String);
+
+  if (loggingEnabled) {
+    console.log(`Total commits to analyze: ${commitHashes.length}`);
+  }
+  progreesBar?.start({ total: commitHashes.length });
+
   for (const commitHash of commitHashes) {
     const diff = execSync(
       `git show --format= --name-only ${commitHash}`
@@ -98,7 +109,7 @@ function processCommits(PackageJsonPath: string): void {
 
     if (diff.includes("package.json")) {
       const packageJsonDiff = execSync(
-        `git show ${commitHash}:${PackageJsonPath}`
+        `git show ${commitHash}:${packageJsonPath}`
       ).toString();
 
       let parsedDiff = null;
@@ -106,7 +117,7 @@ function processCommits(PackageJsonPath: string): void {
       try {
         parsedDiff = JSON.parse(packageJsonDiff);
       } catch (error) {
-        AddLog(`Error parsing package.json: ${error}`);
+        addMessages(`Error parsing package.json: ${error}`);
         continue;
       }
 
@@ -150,44 +161,43 @@ function processCommits(PackageJsonPath: string): void {
           .filter(Boolean)
           .join(", ");
 
-        AddLog(`Determining the highest semver from ${changeTypes}`);
+        addMessages(`Determining the highest semver from ${changeTypes}`);
 
-        const semverChange =
-          VersionHierachy.find((version) =>
-            [semverChanges].includes(version)
-          ) || null;
+        const semverChange = semverHierachy.find((version) =>
+          [semverChanges].includes(version)
+        );
 
         version = updatePackageVersion(version, semverChange) ?? version;
         semverUpdated = true;
       }
     }
-    if (ProgreesBarEnabled) {
-      ProgreesBar?.update({
-        value: iterator++,
-        suffix: GetProgressBarOutput(),
+    if (progreesBarEnabled) {
+      progreesBar?.update({
+        value: commitIterator++,
+        suffix: getProgressMessages(),
       });
-      EmptyLog();
+      emptyMessages();
       continue;
     }
 
-    const output = GetLogOutput();
-    if (output) {
-      console.log(output);
-      EmptyLog();
+    const messages = getLogMessages();
+    if (messages) {
+      console.log(messages);
+      emptyMessages();
     }
   }
 
-  ProgreesBar?.stop();
+  progreesBar?.stop();
 
   if (semverUpdated) {
-    const packageJsonContent = fs.readFileSync(PackageJsonPath, "utf8");
+    const packageJsonContent = fs.readFileSync(packageJsonPath, "utf8");
     const packageJson = JSON.parse(packageJsonContent);
 
     if (packageJson.version === version) return;
 
-    if (ExitProcess) {
-      console.error(
-        `Error: Your project is outdated. Please update your package.json to version ${version} by running 'semver-auto'`
+    if (exitProcess) {
+      console.warn(
+        `Please update your package.json to version ${version} by running 'semver-auto'`
       );
 
       process.exit(1);
@@ -195,8 +205,8 @@ function processCommits(PackageJsonPath: string): void {
     packageJson.version = version;
 
     fs.writeFileSync(
-      PackageJsonPath,
-      JSON.stringify(packageJson, null, 2) + "\n"
+      packageJsonPath,
+      `${JSON.stringify(packageJson, null, 2)}\n`
     );
     console.log(`+ Updated package.json version to ${version}`);
   }
@@ -204,26 +214,30 @@ function processCommits(PackageJsonPath: string): void {
 
 function updatePackageVersion(
   currentVersion: string,
-  versionChange: string | null
+  semverChange?: SemverTypes
 ): string | undefined {
   try {
+    if (!semverChange) return;
+
     const [major, minor, patch] = currentVersion.split(".").map(Number);
 
-    switch (versionChange) {
+    switch (semverChange) {
       case "major":
         currentVersion = `${major + 1}.0.0`;
-        AddLog(`Increase major version: ${currentVersion}\n`);
+        addMessages(`Increase major version: ${currentVersion}\n`);
         break;
       case "minor":
         currentVersion = `${major}.${minor + 1}.0`;
-        AddLog(`Increase minor version: ${currentVersion}\n`);
+        addMessages(`Increase minor version: ${currentVersion}\n`);
         break;
       case "patch":
         currentVersion = `${major}.${minor}.${patch + 1}`;
-        AddLog(`Increase patch version: ${currentVersion}\n`);
+        addMessages(`Increase patch version: ${currentVersion}\n`);
         break;
       default:
-        AddLog(`Encountered an unprocessable version type: ${versionChange}\n`);
+        addMessages(
+          `Encountered an unprocessable version type: ${semverChange}\n`
+        );
         return;
     }
     return currentVersion;
@@ -235,7 +249,7 @@ function updatePackageVersion(
 function determineVersionChange(
   currentDependencies: Record<string, string>,
   newDependencies: Record<string, string>
-): string | null {
+): SemverTypes | null {
   const addedDependencies = Object.keys(newDependencies).filter(
     (dependency) => !currentDependencies.hasOwnProperty(dependency)
   );
@@ -246,15 +260,15 @@ function determineVersionChange(
         ? `Added new dependency: ${addedDependencies}`
         : `Added new dependencies: ${addedDependencies}`;
 
-    AddLog(message);
+    addMessages(message);
     return "major";
   }
 
   const semverChanges: string[] = [];
 
   for (const dependency in newDependencies) {
-    const current = cleanVersion(currentDependencies[dependency]);
-    const compared = cleanVersion(newDependencies[dependency]);
+    const current = cleanSemver(currentDependencies[dependency]);
+    const compared = cleanSemver(newDependencies[dependency]);
 
     const currentVersionCleaned = semver.clean(current);
     const newVersionCleaned = semver.clean(compared);
@@ -272,22 +286,39 @@ function determineVersionChange(
       );
 
       if (semverChange) {
-        AddLog(`Detected semver change at: ${dependency}`);
+        addMessages(`Detected semver change at: ${dependency}`);
         semverChanges.push(semverChange);
       }
     }
   }
 
   if (semverChanges.length) {
-    AddLog("Finding the highest semver from detected change");
+    addMessages("Finding the highest semver from detected change");
     return (
-      VersionHierachy.find((version) => semverChanges.includes(version)) || null
+      semverHierachy.find((version) => semverChanges.includes(version)) || null
     );
   }
-
   return null;
 }
 
-function cleanVersion(version: string): string {
-  return version.replace(/^[^0-9]+/, "");
+function packageJsonVersion(): string | undefined {
+  if (startFromHead) {
+    const latestCommitHash = execSync("git log -n 1 --pretty=format:%H", {
+      encoding: "utf-8",
+    });
+
+    const gitShowOutput = execSync(
+      `git show ${latestCommitHash}:${packageJsonPath}`,
+      { encoding: "utf-8" }
+    );
+
+    try {
+      const packageJson = JSON.parse(gitShowOutput);
+      return packageJson.version;
+    } catch (error) {
+      console.error(`Error parsing current package.json: ${error}`);
+      return;
+    }
+  }
+  return "1.0.0";
 }
