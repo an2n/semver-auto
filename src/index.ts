@@ -37,11 +37,12 @@ const AddLog = (message: string) => {
   }
 };
 
-const GetLog = () => {
-  if (LoggingEnabled) {
-    return Logs.length ? `\n${Logs.join("\n")}` : undefined;
-  }
-  return undefined;
+const GetLogOutput = () => {
+  return Logs.length ? Logs.join("\n") : undefined;
+};
+
+const GetProgressBarOutput = () => {
+  return Logs.length ? `\n${Logs.join("\n")}` : undefined;
 };
 
 function EmptyLog() {
@@ -149,7 +150,7 @@ function processCommits(PackageJsonPath: string): void {
           .filter(Boolean)
           .join(", ");
 
-        AddLog(`Selecting the highest semver from ${changeTypes}`);
+        AddLog(`Determining the highest semver from ${changeTypes}`);
 
         const semverChange =
           VersionHierachy.find((version) =>
@@ -160,9 +161,20 @@ function processCommits(PackageJsonPath: string): void {
         semverUpdated = true;
       }
     }
+    if (ProgreesBarEnabled) {
+      ProgreesBar?.update({
+        value: iterator++,
+        suffix: GetProgressBarOutput(),
+      });
+      EmptyLog();
+      continue;
+    }
 
-    ProgreesBar?.update({ value: iterator++, suffix: GetLog() });
-    EmptyLog();
+    const output = GetLogOutput();
+    if (output) {
+      console.log(output);
+      EmptyLog();
+    }
   }
 
   ProgreesBar?.stop();
@@ -267,8 +279,7 @@ function determineVersionChange(
   }
 
   if (semverChanges.length) {
-    AddLog("Selecting the highest semver from detected change");
-
+    AddLog("Finding the highest semver from detected change");
     return (
       VersionHierachy.find((version) => semverChanges.includes(version)) || null
     );
